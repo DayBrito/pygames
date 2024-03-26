@@ -18,7 +18,7 @@ LEFT = 3
 
 pygame.init()
 screen = pygame.display.set_mode((600,600))
-pygame.display.set_caption('Snakezinha')
+pygame.display.set_caption('Snake')
 
 snake = [(200,200), (210,200), (220,200)]
 snake_skin = pygame.Surface((10,10))
