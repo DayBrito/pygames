@@ -19,7 +19,7 @@ class Board:
         self.board[peca.row][peca.col], self.board[row][col] = self.board[row][col], self.board[peca.row][peca.col]
         peca.move(row, col)
 
-        if row == ROWS or row == 0:
+        if row == ROWS - 1 or row == 0:
             peca.make_king()
             if peca.color == WHITE:
                 self.white_kings +=1
@@ -50,21 +50,102 @@ class Board:
                 piece = self.board[row][col]
                 if piece !=0:
                     piece.draw(win)
+    
+    def remove(self, pieces):
+        for piece in pieces:
+            self.board[piece.row][piece.col] = 0
+            if piece !=0:
+                if piece.color == RED:
+                    self.red_left -=1
+                else:
+                    self.white_left -=1
+    
+
+    def winner(self):
+        if self.red_left <=0:
+            return WHITE
+        elif self.white_left <=0:
+            return RED
+        return None
+        
 
     def get_valid_moves(self,peca):
         moves = {}
         left = peca.col -1
-        rigth = peca.col +1
+        right = peca.col +1
         row = peca.row
         
         if peca.color == RED or peca.king:
-            pass
-        
+                moves.update(self._traverse_left(row -1, max(row-3, -1), -1, peca.color, left))
+                moves.update(self._traverse_right(row -1, max(row-3, -1), -1, peca.color, right))
         if peca.color == WHITE or peca.king:
-            pass
+                moves.update(self._traverse_left(row +1, min(row+3, ROWS), 1, peca.color, left))
+                moves.update(self._traverse_right(row +1, min(row+3, ROWS), 1, peca.color, right))
 
+        return moves
+    
     def _traverse_left(self, start, stop, step, color, left, skipped=[]):
-        pass
+        moves = {}
+        last = []
+        for r in range(start, stop, step):
+            if left < 0:
+                break
 
-    def _traverse_right(self, start, stop, step, color, left, skipped=[]):
-        pass
+            current = self.board[r][left] 
+            if current == 0:
+                if skipped and not last:
+                    break
+                elif skipped:
+                    moves[(r, left)] = last + skipped
+                else:
+                    moves[(r, left)] = last
+                
+                if last:
+                    if step == -1:
+                        row = max(r-3, 0)
+                    else:
+                        row = min(r+3, ROWS)
+                    
+                    moves.update(self._traverse_left(r+step, row, step, color, left-1, skipped=last))
+                    moves.update(self._traverse_right(r+step, row, step, color, left+1, skipped=last))
+
+            elif current.color == color:
+                break
+            else:
+                last = [current]
+            left -=1
+
+        return moves
+
+    def _traverse_right(self, start, stop, step, color, right, skipped=[]):
+        moves = {}
+        last = []
+        for r in range(start, stop, step):
+            if right >= COLS:
+                break
+
+            current = self.board[r][right] 
+            if current == 0:
+                if skipped and not last:
+                    break
+                elif skipped:
+                    moves[(r, right)] = last + skipped
+                else:
+                    moves[(r, right)] = last
+                
+                if last:
+                    if step == -1:
+                        row = max(r-3, 0)
+                    else:
+                        row = min(r+3, ROWS)
+                    
+                    moves.update(self._traverse_left(r+step, row, step, color, right-1, skipped=last))
+                    moves.update(self._traverse_right(r+step, row, step, color, right+1, skipped=last))
+
+            elif current.color == color:
+                break
+            else:
+                last = [current]
+            right +=1
+
+        return moves

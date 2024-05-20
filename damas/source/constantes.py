@@ -13,4 +13,4 @@ GREEN = (62, 92, 23)
 L_GREEN = (127, 168, 74)
 GREY = (128,128,128)
 
-COROA = pygame.transform.scale(pygame.image.load('source/assets/crown.png'), (45,25))
+COROA = pygame.transform.scale(pygame.image.load('source/assets/crown.png'), (44,25))
